@@ -1,0 +1,145 @@
+/* ===== PRODUCT PAGE LAYOUT ===== */
+.product-container {
+  width: 2880px;
+  height: 1920px;
+  overflow: hidden;
+}
+
+/* ===== PRODUCT HEADER ===== */
+.product-header {
+  border-bottom: 15px solid #ffb91d;
+  padding: 70px 80px;
+  box-sizing: border-box;
+}
+
+.product-header-title {
+  font-size: 48px;
+  font-weight: 400;
+  color: white;
+  text-align: right;
+  line-height: normal;
+  text-transform: uppercase;
+}
+
+.product-header-content {
+  margin-top: 200px;
+  flex: 1;
+  min-height: 0;
+}
+
+.product-name {
+  font-size: 96px;
+  font-weight: 300;
+  color: #ffb91d;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.product-description {
+  font-size: 48px;
+  font-weight: 400;
+  color: white;
+  line-height: 1.38;
+  margin-top: 50px;
+}
+
+/* ===== PRODUCT MAIN CONTENT ===== */
+.product-main {
+  padding: 100px;
+  box-sizing: border-box;
+}
+
+/* ===== SLIDER ===== */
+.slider-container {
+  height: 100%;
+  width: 100%;
+}
+
+.slider-arrow {
+  width: 85px;
+  height: 119px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.slider-arrow-right {
+  transform: rotate(180deg);
+}
+
+.slider-track {
+  width: 2410px;
+  overflow: hidden;
+  height: 100%;
+  flex-shrink: 0;
+  position: relative;
+  user-select: none;
+}
+
+.slider-inner {
+  display: flex;
+  height: 100%;
+}
+
+.product-card {
+  width: 482px;
+  flex-shrink: 0;
+  height: 100%;
+  padding: 25px;
+  box-sizing: border-box;
+  gap: 25px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.product-card-image {
+  height: 200px;
+  width: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.product-card-label {
+  font-size: 40px;
+  font-weight: 500;
+  color: #424242;
+  text-align: center;
+  line-height: normal;
+  width: 100%;
+}
+
+/* ===== HIGHLIGHT BORDER (fixed in center) ===== */
+.slider-highlight-fixed {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(50%) ;
+  width: 482px;
+  height: 482px;
+  border: 10px solid #ffb91d;
+  pointer-events: none;
+  z-index: 2;
+  box-sizing: border-box;
+  transition: opacity 0.2s ease;
+}
+
+/* ===== SELECT NEW SYSTEM BUTTON ===== */
+.select-system-button {
+  background-color: #ffb91d;
+  border-radius: 100px;
+  padding: 24px 80px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.select-system-button-text {
+  font-size: 48px;
+  font-weight: 500;
+  color: #424242;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.38;
+}
