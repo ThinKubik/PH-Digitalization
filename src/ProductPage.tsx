@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProductPage.css';
+import ExitButton from './ExitButton';
 
 interface Product {
   name: string;
@@ -36,6 +37,8 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
   const dragStarted = useRef(false);
+  const draggedRef = useRef(false);  // true once movement exceeds threshold
+  const dragXRef = useRef(0);        // always-current mirror of dragX state
 
   const animateTo = useCallback((offset: number) => {
     if (offset === 0) return;
@@ -72,6 +75,8 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     if (isAnimating) return;
     dragStartX.current = e.clientX;
     dragStarted.current = true;
+    draggedRef.current = false;
+    dragXRef.current = 0;
     setIsDragging(true);
     setDragX(0);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -80,20 +85,37 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragStarted.current) return;
     const dx = e.clientX - dragStartX.current;
+    dragXRef.current = dx;
+    if (Math.abs(dx) > DRAG_THRESHOLD) draggedRef.current = true;
     setDragX(dx);
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
     if (!dragStarted.current) return;
     dragStarted.current = false;
     setIsDragging(false);
-
-    const cardsMoved = Math.round(-dragX / CARD_WIDTH);
     setDragX(0);
 
-    if (cardsMoved !== 0) {
-      animateTo(cardsMoved);
+    if (draggedRef.current) {
+      // It was a drag — snap to nearest card
+      const cardsMoved = Math.round(-dragXRef.current / CARD_WIDTH);
+      if (cardsMoved !== 0) animateTo(cardsMoved);
+    } else {
+      // It was a tap — determine which slot from pointer position
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const relX = e.clientX - rect.left;
+      const slotFromLeft = Math.floor(relX / CARD_WIDTH);
+      const slot = BUFFER + slotFromLeft;
+      handleSlotClick(slot);
     }
+  };
+
+  const handlePointerCancel = () => {
+    dragStarted.current = false;
+    draggedRef.current = false;
+    dragXRef.current = 0;
+    setIsDragging(false);
+    setDragX(0);
   };
 
   // Render VISIBLE_COUNT + 2*BUFFER items
@@ -109,6 +131,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
 
   return (
     <div className="product-container bg-white flex flex-col">
+      <ExitButton />
       {/* ===== HEADER ===== */}
       <div className="product-header bg-[#424242] flex flex-col w-full shrink-0">
         <div className="flex items-start justify-between">
@@ -136,7 +159,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
           {/* Left arrow */}
           <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingRight: 50 }}>
             <img
-              src="/images/arrow.png"
+              src="./images/arrow.png"
               alt="Previous"
               className="slider-arrow"
               onClick={handlePrev}
@@ -149,7 +172,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
             style={{ touchAction: 'none' }}
           >
             {/* Fixed highlight in center position */}
@@ -172,9 +195,6 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
                   <div
                     key={`${centeredIndex}-${slot}`}
                     className="product-card bg-white flex flex-col items-center justify-center"
-                    onClick={() => {
-                      if (Math.abs(dragX) < DRAG_THRESHOLD) handleSlotClick(slot);
-                    }}
                   >
                     <img
                       src={product.image}
@@ -191,7 +211,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
           {/* Right arrow */}
           <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingLeft: 50 }}>
             <img
-              src="/images/arrow.png"
+              src="./images/arrow.png"
               alt="Next"
               className="slider-arrow slider-arrow-right"
               onClick={handleNext}
@@ -202,3 +222,4 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     </div>
   );
 }
+

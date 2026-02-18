@@ -2,25 +2,20 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { sendUdpSignal } from './udp';
+import ExitButton from './ExitButton';
 
 const CARDS = [
-  { id: 0, label: 'Category 3, PLd Steer by Wire System', route: '/cat3-pld-sbw' },
-  { id: 1, label: 'Category 2, PLd Steer by Wire System', route: '/cat2-pld-sbw' },
-  { id: 2, label: 'Category B, Steer by Wire System', route: '/catb-sbw' },
-  { id: 3, label: 'Category 3, PLd Brake By Wire System', route: '/cat3-pld-bbw' },
+  { id: 0, label: 'Dual Channel Steering System', route: '/cat3-pld-sbw' },
+  { id: 1, label: 'Single Channel Steering System', route: '/cat2-pld-sbw' },
+  { id: 2, label: 'Simple by Design Steering System', route: '/catb-sbw' },
+  { id: 3, label: 'Dual Channel Brake-by-Wire System', route: '/cat3-pld-bbw' },
 ];
 
 const IDLE_TIMEOUT = 30_000; // 30 seconds
 const CYCLE_INTERVAL = 5_000; // 5 seconds per card
 
 function cardLabelToJsx(label: string) {
-  const parts = label.split(', ');
-  return (
-    <>
-      {parts[0]},<br />
-      {parts[1]}
-    </>
-  );
+  return <>{label}</>;
 }
 
 export default function HomePage() {
@@ -41,6 +36,11 @@ export default function HomePage() {
     if (idleTimer.current) clearTimeout(idleTimer.current);
     idleTimer.current = setTimeout(() => setIsIdle(true), IDLE_TIMEOUT);
   }, [isIdle]);
+
+  // Send the initial UDP signal for the default selected card on mount
+  useEffect(() => {
+    sendUdpSignal(0);
+  }, []);
 
   // Attach activity listeners
   useEffect(() => {
@@ -87,6 +87,7 @@ export default function HomePage() {
 
   return (
     <div className="sbw-container bg-white flex flex-col">
+      <ExitButton />
       {/* ===== HEADER ===== */}
       <div className="header bg-[#424242] flex flex-col w-full shrink-0">
         <p className="header-title">STEER-BY-WIRE</p>
