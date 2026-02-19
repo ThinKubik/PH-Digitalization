@@ -4,6 +4,31 @@ const { app, BrowserWindow, screen, ipcMain } = require('electron');
 
 ipcMain.on('quit-app', () => app.quit());
 const path = require('path');
+const dgram = require('dgram');
+
+// ── UDP broadcast to PixLite MK3 ───────────────────────────────────
+const UDP_TARGET_IP   = '169.254.255.255';  // link-local broadcast
+const UDP_TARGET_PORT = 51680;
+
+ipcMain.on('send-udp', (_event, message) => {
+  const client = dgram.createSocket('udp4');
+  // Append carriage-return terminator (char 13) — required by PixLite string triggers
+  const buf = Buffer.from(message + '\r', 'ascii');
+
+  client.once('listening', () => {
+    client.setBroadcast(true);
+    client.send(buf, 0, buf.length, UDP_TARGET_PORT, UDP_TARGET_IP, (err) => {
+      if (err) {
+        console.error('[UDP] Send error:', err);
+      } else {
+        console.log(`[UDP] Sent "${message}\\r" to ${UDP_TARGET_IP}:${UDP_TARGET_PORT}`);
+      }
+      client.close();
+    });
+  });
+
+  client.bind();  // bind to any available port so 'listening' fires
+});
 
 function createWindow() {
   // Scale to fill screen width — the 3:2 design is wider than most displays,
