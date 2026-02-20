@@ -7,13 +7,13 @@
 
 /* ===== HEADER ===== */
 .header {
-  border-bottom: 15px solid #ffb91d;
-  padding: 70px 80px;
+  border-bottom: 0.833rem solid #ffb91d;
+  padding: 3.889rem 4.444rem;
   box-sizing: border-box;
 }
 
 .header-title {
-  font-size: 48px;
+  font-size: 3rem;
   font-weight: 400;
   color: white;
   text-align: right;
@@ -21,33 +21,33 @@
 }
 
 .header-bottom {
-  margin-top: 80px;
+  margin-top: 4.444rem;
 }
 
 .header-heading {
-  font-size: 96px;
+  font-size: 5rem;
   font-weight: 300;
   color: #ffb91d;
   line-height: 1;
-  margin-bottom: 20px;
+  margin-bottom: 1.111rem;
 }
 
 .header-subtitle {
-  font-size: 48px;
+  font-size: 2.8rem;
   font-weight: 400;
   color: white;
   line-height: 1.38;
-  margin-top: 50px;
+  margin-top: 2.778rem;
 }
 
 .header-button {
   background-color: #ffb91d;
-  border-radius: 100px;
-  padding: 24px 80px;
+  border-radius: 5.556rem;
+  padding: 1.333rem 4.444rem;
 }
 
 .header-button-text {
-  font-size: 48px;
+  font-size: 3rem;
   font-weight: 500;
   color: #424242;
   white-space: nowrap;
@@ -56,18 +56,18 @@
 
 /* ===== MAIN CONTENT ===== */
 .main-content {
-  padding-top: 300px;
+  padding-top: 16.667rem;
 }
 
 .cards-row {
-  gap: 300px;
+  gap: 10rem;
 }
 
 .card {
-  width: 400px;
-  height: 400px;
-  box-shadow: 5px 5px 50px 30px rgba(66, 66, 66, 0.15);
-  border: 15px solid transparent;
+  width: 25rem;
+  height: 25rem;
+  box-shadow: 0.278rem 0.278rem 2.778rem 1.667rem rgba(66, 66, 66, 0.15);
+  border: 0.833rem solid transparent;
   transition: border-color 0.8s ease;
 }
 
@@ -76,17 +76,17 @@
 }
 
 .card-text {
-  font-size: 48px;
+  font-size: 2.667rem;
   font-weight: 400;
   color: white;
   text-align: center;
   line-height: 1.3;
-  padding: 40px;
+  padding: 2.222rem;
 }
 
 .connector-line {
-  width: 20px;
-  height: 800px;
+  width: 1.111rem;
+  height: 44.444rem;
   transition: background-color 0.8s ease;
 }
 

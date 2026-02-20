@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  font-size: 18px; /* Base font size increased from 16px for rem scaling */
+}
+
 * {
   font-family: 'Roboto', sans-serif;
   margin: 0;

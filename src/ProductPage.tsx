@@ -1,6 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProductPage.css';
+import { sendUdpSignal } from './udp';
 import ExitButton from './ExitButton';
 
 interface Product {
@@ -20,6 +21,8 @@ const BUFFER = 10;
 const RENDER_COUNT = VISIBLE_COUNT + BUFFER * 2;
 const CARD_WIDTH = 482;
 const DRAG_THRESHOLD = 40;
+const IDLE_TIMEOUT = 30_000; // 30 seconds
+const CYCLE_INTERVAL = 5_000; // 5 seconds per product
 
 function mod(n: number, m: number) {
   return ((n % m) + m) % m;
@@ -29,6 +32,9 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   const navigate = useNavigate();
   const [centeredIndex, setCenteredIndex] = useState(0);
   const [animOffset, setAnimOffset] = useState(0);
+  const [isIdle, setIsIdle] = useState(false);
+  const idleTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const cycleTimer = useRef<ReturnType<typeof setInterval>>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [highlightVisible, setHighlightVisible] = useState(true);
 
@@ -40,7 +46,27 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   const draggedRef = useRef(false);  // true once movement exceeds threshold
   const dragXRef = useRef(0);        // always-current mirror of dragX state
 
+  const resetIdleTimer = useCallback(() => {
+    // User interacted — stop cycling and restart idle countdown
+    setIsIdle(false);
+    if (cycleTimer.current) {
+      clearInterval(cycleTimer.current);
+      cycleTimer.current = null;
+    }
+    if (idleTimer.current) clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => setIsIdle(true), IDLE_TIMEOUT);
+  }, []);
+
   const animateTo = useCallback((offset: number) => {
+    if (offset === 0) return;
+    setHighlightVisible(false);
+    setIsAnimating(true);
+    setAnimOffset(offset);
+    resetIdleTimer();
+  }, []);
+
+  // Internal animate for cycling without resetting idle timer
+  const animateToInternal = useCallback((offset: number) => {
     if (offset === 0) return;
     setHighlightVisible(false);
     setIsAnimating(true);
@@ -64,7 +90,12 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   };
 
   const handleTransitionEnd = () => {
-    setCenteredIndex((prev) => mod(prev + animOffset, products.length));
+    setCenteredIndex((prev) => {
+      const newIndex = mod(prev + animOffset, products.length);
+      // Send UDP signal for the new highlighted product
+      sendUdpSignal(newIndex, products[newIndex].name);
+      return newIndex;
+    });
     setAnimOffset(0);
     setIsAnimating(false);
     setHighlightVisible(true);
@@ -99,7 +130,9 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     if (draggedRef.current) {
       // It was a drag — snap to nearest card
       const cardsMoved = Math.round(-dragXRef.current / CARD_WIDTH);
-      if (cardsMoved !== 0) animateTo(cardsMoved);
+      if (cardsMoved !== 0) {
+        animateTo(cardsMoved);
+      }
     } else {
       // It was a tap — determine which slot from pointer position
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -117,6 +150,40 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     setIsDragging(false);
     setDragX(0);
   };
+
+  // Send initial UDP signal for the default selected product on mount
+  useEffect(() => {
+    sendUdpSignal(0, products[0]?.name ?? 'Unknown Product');
+  }, [products]);
+
+  // Attach activity listeners and start idle countdown
+  useEffect(() => {
+    const events = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'] as const;
+    events.forEach((e) => window.addEventListener(e, resetIdleTimer));
+    // Start initial idle countdown
+    idleTimer.current = setTimeout(() => setIsIdle(true), IDLE_TIMEOUT);
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetIdleTimer));
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+      if (cycleTimer.current) clearInterval(cycleTimer.current);
+    };
+  }, [resetIdleTimer]);
+
+  // Start cycling when idle
+  useEffect(() => {
+    if (!isIdle) return;
+    // Immediately advance to next product with animation
+    animateToInternal(1);
+    cycleTimer.current = setInterval(() => {
+      animateToInternal(1);
+    }, CYCLE_INTERVAL);
+    return () => {
+      if (cycleTimer.current) {
+        clearInterval(cycleTimer.current);
+        cycleTimer.current = null;
+      }
+    };
+  }, [isIdle, animateToInternal]);
 
   // Render VISIBLE_COUNT + 2*BUFFER items
   const renderIndices = Array.from({ length: RENDER_COUNT }, (_, slot) =>
@@ -157,7 +224,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
         {/* Slider row */}
         <div className="slider-container flex items-center">
           {/* Left arrow */}
-          <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingRight: 50 }}>
+          <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingRight: '2.778rem' }}>
             <img
               src="./images/arrow.png"
               alt="Previous"
@@ -209,7 +276,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
           </div>
 
           {/* Right arrow */}
-          <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingLeft: 50 }}>
+          <div className="flex items-center justify-center shrink-0 h-full" style={{ paddingLeft: '2.778rem' }}>
             <img
               src="./images/arrow.png"
               alt="Next"
