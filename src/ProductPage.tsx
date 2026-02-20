@@ -1,5 +1,4 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './ProductPage.css';
 import { sendUdpSignal } from './udp';
 import ExitButton from './ExitButton';
@@ -29,7 +28,6 @@ function mod(n: number, m: number) {
 }
 
 export default function ProductPage({ categoryLabel, products }: ProductPageProps) {
-  const navigate = useNavigate();
   const [centeredIndex, setCenteredIndex] = useState(0);
   const [animOffset, setAnimOffset] = useState(0);
   const [isIdle, setIsIdle] = useState(false);
@@ -47,7 +45,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
   const dragXRef = useRef(0);        // always-current mirror of dragX state
 
   const resetIdleTimer = useCallback(() => {
-    // User interacted — stop cycling and restart idle countdown
+    // User interacted  stop cycling and restart idle countdown
     setIsIdle(false);
     if (cycleTimer.current) {
       clearInterval(cycleTimer.current);
@@ -128,13 +126,13 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     setDragX(0);
 
     if (draggedRef.current) {
-      // It was a drag — snap to nearest card
+      // It was a drag  snap to nearest card
       const cardsMoved = Math.round(-dragXRef.current / CARD_WIDTH);
       if (cardsMoved !== 0) {
         animateTo(cardsMoved);
       }
     } else {
-      // It was a tap — determine which slot from pointer position
+      // It was a tap  determine which slot from pointer position
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const relX = e.clientX - rect.left;
       const slotFromLeft = Math.floor(relX / CARD_WIDTH);
@@ -202,12 +200,6 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
       {/* ===== HEADER ===== */}
       <div className="product-header bg-[#424242] flex flex-col w-full shrink-0">
         <div className="flex items-start justify-between">
-          <a
-            className="select-system-button"
-            onClick={() => navigate('/')}
-          >
-            <span className="select-system-button-text">Select New System</span>
-          </a>
           <p className="product-header-title">{categoryLabel}</p>
         </div>
 
@@ -251,7 +243,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
             <div
               className="slider-inner"
               style={{
-                transform: `translateX(${translateX}px)`,
+                transform: \	ranslateX(\px)\,
                 transition: isAnimating ? 'transform 0.35s ease' : 'none',
               }}
               onTransitionEnd={handleTransitionEnd}
@@ -260,7 +252,7 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
                 const product = products[productIndex];
                 return (
                   <div
-                    key={`${centeredIndex}-${slot}`}
+                    key={\\-\\}
                     className="product-card bg-white flex flex-col items-center justify-center"
                   >
                     <img
@@ -289,4 +281,3 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
     </div>
   );
 }
-
