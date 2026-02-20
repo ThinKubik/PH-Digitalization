@@ -243,16 +243,16 @@ export default function ProductPage({ categoryLabel, products }: ProductPageProp
             <div
               className="slider-inner"
               style={{
-                transform: \	ranslateX(\px)\,
+                transform: `translateX(${translateX}px)`,
                 transition: isAnimating ? 'transform 0.35s ease' : 'none',
               }}
               onTransitionEnd={handleTransitionEnd}
             >
-              {renderIndices.map((productIndex, slot) => {
+              {renderIndices.map((productIndex) => {
                 const product = products[productIndex];
                 return (
                   <div
-                    key={\\-\\}
+                    key={productIndex}
                     className="product-card bg-white flex flex-col items-center justify-center"
                   >
                     <img
